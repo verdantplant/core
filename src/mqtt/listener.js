@@ -3,11 +3,23 @@ const mqtt = require('mqtt');
 const supabase = require('../db/client');
 const { scheduleAnalysis } = require('../ai/scheduler');
 
-const client = mqtt.connect(process.env.MQTT_BROKER_URL, {
-  username: process.env.MQTT_USERNAME,
-  password: process.env.MQTT_PASSWORD,
+const BROKER_URL = process.env.MQTT_BROKER_URL;
+const USERNAME   = process.env.MQTT_USERNAME;
+const PASSWORD   = process.env.MQTT_PASSWORD;
+
+if (!BROKER_URL) {
+  console.error('[MQTT] ERROR: MQTT_BROKER_URL is not set. Check your environment variables.');
+  process.exit(1);
+}
+
+console.log(`[MQTT] Connecting to ${BROKER_URL}`);
+
+const client = mqtt.connect(BROKER_URL, {
+  username: USERNAME,
+  password: PASSWORD,
   reconnectPeriod: 5000,
   keepalive: 60,
+  rejectUnauthorized: false,
 });
 
 client.on('connect', () => {
